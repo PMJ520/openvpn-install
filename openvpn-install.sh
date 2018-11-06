@@ -204,7 +204,7 @@ function installQuestions () {
 		echo "It seems this server is behind NAT. What is its public IPv4 address or hostname?"
 		echo "We need it for the clients to connect to the server."
 		until [[ "$PUBLICIP" != "" ]]; do
-			read -rp "Public IPv4 address or hostname: " -e PUBLICIP
+			read -rp "Public IPv4 address or hostname: " -e -i $(wget -4qO- "http://whatismyip.akamai.com/") PUBLICIP
 		done
 	fi
 
