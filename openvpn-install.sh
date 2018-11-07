@@ -547,7 +547,12 @@ function installQuestions () {
 
 
 	fi
-			
+	echo ""
+	echo "Tell me a name for the client."
+	echo "Use one word only, no special characters."
+	until [[ "$CLIENT_start" =~ ^[a-zA-Z0-9_]+$ ]]; do
+		read -rp "Client name: " -e -i "vpn-client-"$(date "+%Y-%m-%d %H:%M:%S") CLIENT_start
+	done		
 
 	echo ""
 	echo "Okay, that was all I needed. We are ready to setup your OpenVPN server now."
