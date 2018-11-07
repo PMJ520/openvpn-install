@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Secure OpenVPN server installer for Debian, Ubuntu, CentOS, Fedora and Arch Linux
-# https://github.com/angristan/openvpn-install
+# https://github.com/PMJ520/tools_public/tree/master/vpn/openvpn
 
 function isRoot () {
 	if [ "$EUID" -ne 0 ]; then
@@ -186,7 +186,6 @@ private-address: ::ffff:0:0/96' > /etc/unbound/openvpn.conf
 
 function installQuestions () {
 	echo "Welcome to the OpenVPN installer!"
-	echo "The git repository is available at: https://github.com/angristan/openvpn-install"
 	echo ""
 
 	echo "I need to ask you a few questions before starting the setup."
@@ -194,6 +193,7 @@ function installQuestions () {
 	echo ""
 	echo "I need to know the IPv4 address of the network interface you want OpenVPN listening to."
 	echo "Unless your server is behind NAT, it should be your public IPv4 address."
+	echo "It is recommended to use the first network card address, equivalent to the LAN IPv4 address."
 
 	# Detect public IPv4 address and pre-fill for the user
 	IP=$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)
@@ -203,6 +203,7 @@ function installQuestions () {
 		echo ""
 		echo "It seems this server is behind NAT. What is its public IPv4 address or hostname?"
 		echo "We need it for the clients to connect to the server."
+		echo "Use public network accessible IPv4 addresses here."
 		until [[ "$PUBLICIP" != "" ]]; do
 			read -rp "Public IPv4 address or hostname: " -e -i $(wget -4qO- "http://whatismyip.akamai.com/") PUBLICIP
 		done
@@ -235,7 +236,7 @@ function installQuestions () {
 	echo "   2) Custom"
 	echo "   3) Random [49152-65535]"
 	until [[ "$PORT_CHOICE" =~ ^[1-3]$ ]]; do
-		read -rp "Port choice [1-3]: " -e -i 1 PORT_CHOICE
+		read -rp "Port choice [1-3]: " -e -i 3 PORT_CHOICE
 	done
 	case $PORT_CHOICE in
 		1)
@@ -258,7 +259,7 @@ function installQuestions () {
 	echo "   1) UDP"
 	echo "   2) TCP"
 	until [[ "$PROTOCOL_CHOICE" =~ ^[1-2]$ ]]; do
-		read -rp "Protocol [1-2]: " -e -i 1 PROTOCOL_CHOICE
+		read -rp "Protocol [1-2]: " -e -i 2 PROTOCOL_CHOICE
 	done
 	case $PROTOCOL_CHOICE in
 		1)
@@ -302,10 +303,11 @@ function installQuestions () {
 			fi
 	done
 	echo ""
-	echo "Do you want to use compression? It is not recommended since the VORACLE attack make use of it."
-	until [[ $COMPRESSION_ENABLED =~ (y|n) ]]; do
-		read -rp"Enable compression? [y/n]: " -e -i n COMPRESSION_ENABLED
-	done
+#	The following content has security implications, so force this feature off
+#	echo "Do you want to use compression? It is not recommended since the VORACLE attack make use of it."
+#	until [[ $COMPRESSION_ENABLED =~ (y|n) ]]; do
+#		read -rp"Enable compression? [y/n]: " -e -i n COMPRESSION_ENABLED
+#	done
 	if [[ $COMPRESSION_ENABLED == "y" ]];then
 		echo "Choose which compression algorithm you want to use:"
 		echo "   1) LZ4 (more efficient)"
@@ -326,7 +328,7 @@ function installQuestions () {
 	echo "Do you want to customize encryption settings?"
 	echo "Unless you know what you're doing, you should stick with the default parameters provided by the script."
 	echo "Note that whatever you choose, all the choices presented in the script are safe. (Unlike OpenVPN's defaults)"
-	echo "See https://github.com/angristan/openvpn-install#security-and-encryption to learn more."
+	echo "See https://community.openvpn.net/openvpn/wiki/Openvpn24ManPage to learn more."
 	echo ""
 	until [[ $CUSTOMIZE_ENC =~ (y|n) ]]; do
 		read -rp "Customize encryption settings? [y/n]: " -e -i n CUSTOMIZE_ENC
@@ -337,10 +339,10 @@ function installQuestions () {
 		CERT_TYPE="1" # ECDSA
 		CERT_CURVE="prime256v1"
 		CC_CIPHER="TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256"
-		DH_TYPE="1" # ECDH
+		DH_TYPE="2" # DH
 		DH_CURVE="prime256v1"
 		HMAC_ALG="SHA256"
-		TLS_SIG="1" # tls-crypt
+		TLS_SIG="2" # tls-auth
 	else
 		echo ""
 		echo "Choose which cipher you want to use for the data channel:"
@@ -542,7 +544,11 @@ function installQuestions () {
 		until [[ $TLS_SIG =~ [1-2] ]]; do
 				read -rp "Control channel additional security mechanism [1-2]: " -e -i 1 TLS_SIG
 		done
+
+
 	fi
+			
+
 	echo ""
 	echo "Okay, that was all I needed. We are ready to setup your OpenVPN server now."
 	echo "You will be able to generate a client at the end of the installation."
@@ -941,8 +947,9 @@ function newClient () {
 	echo "Tell me a name for the client."
 	echo "Use one word only, no special characters."
 
+	CLIENT=$CLIENT_start
 	until [[ "$CLIENT" =~ ^[a-zA-Z0-9_]+$ ]]; do
-		read -rp "Client name: " -e CLIENT
+		read -rp "Client name: " -e -i client CLIENT
 	done
 
 	echo ""
@@ -950,7 +957,7 @@ function newClient () {
 	echo "(e.g. encrypt the private key with a password)"
 	echo "   1) Add a passwordless client"
 	echo "   2) Use a password for the client"
-
+	PASS=1
 	until [[ "$PASS" =~ ^[1-2]$ ]]; do
 		read -rp "Select an option [1-2]: " -e -i 1 PASS
 	done
@@ -1166,9 +1173,6 @@ function removeOpenVPN () {
 
 function manageMenu () {
 	clear
-	echo "Welcome to OpenVPN-install!"
-	echo "The git repository is available at: https://github.com/angristan/openvpn-install"
-	echo ""
 	echo "It looks like OpenVPN is already installed."
 	echo ""
 	echo "What do you want to do?"
