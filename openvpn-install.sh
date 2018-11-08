@@ -694,6 +694,10 @@ topology subnet
 server 10.8.0.0 255.255.255.0
 ifconfig-pool-persist ipp.txt" >> /etc/openvpn/server.conf
 
+	VPCSUBNETDEFAULT=$(route -n | grep eth0 | grep 255.255| awk '{print $1,$3}' | tail -n 1| awk '{print $1}')
+	VPCMASKDEFAULT=$(route -n | grep eth0 | grep 255.255| awk '{print $1,$3}' | tail -n 1| awk '{print $2}')
+	echo "push \"route $VPCSUBNETDEFAULT $VPCMASKDEFAULT vpn_gateway\"" >> /etc/openvpn/server.conf
+	
 	# DNS resolvers
 	case $DNS in
 		1)
