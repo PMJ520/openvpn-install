@@ -1,5 +1,11 @@
 # openvpn-install
 
+[Optimized new script](https://github.com/PMJ520/tools_public/tree/master/vpn/openvpn)  
+**The optimized version of the new script mainly solves the problem that the LAN and client which cannot connect the server cannot use the public network, and also enhances the security and the use portability**[Optimized new script](https://github.com/PMJ520/tools_public/tree/master/vpn/openvpn)  
+****
+
+
+
 [![GitLab CI](https://gitlab.com/angristan/openvpn-install/badges/master/pipeline.svg)](https://gitlab.com/angristan/openvpn-install/pipelines)
 
 OpenVPN installer for Debian, Ubuntu, Fedora, CentOS and Arch Linux.
