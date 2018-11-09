@@ -801,9 +801,15 @@ verb 3" >> /etc/openvpn/server.conf
 	mkdir -p /var/log/openvpn
 
 	# Enable routing
-	echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.d/20-openvpn.conf
+	sed -i '/\<net.ipv4.ip_forward\>/c\net.ipv4.ip_forward=1' /etc/sysctl.conf
+	if ! grep -q "\<net.ipv4.ip_forward\>" /etc/sysctl.conf; then
+		echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf
+	fi
 	if [[ "$IPV6_SUPPORT" = 'y' ]]; then
-		echo 'net.ipv6.conf.all.forwarding=1' >> /etc/sysctl.d/20-openvpn.conf
+		sed -i '/\<net.ipv6.conf.all.forwarding\>/c\net.ipv6.conf.all.forwarding=1' /etc/sysctl.conf
+		if ! grep -q "\<net.ipv6.conf.all.forwarding\>" /etc/sysctl.conf; then
+			echo 'net.ipv6.conf.all.forwarding=1' >> /etc/sysctl.conf
+		fi
 	fi
 	# Avoid an unneeded reboot
 	sysctl --system
