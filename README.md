@@ -1,8 +1,11 @@
 # openvpn-install
 
 [Optimized new script](https://github.com/PMJ520/tools_public/tree/master/vpn/openvpn)  
-**The optimized version of the new script mainly solves the problem that the LAN and client which cannot connect the server cannot use the public network, and also enhances the security and the use portability**[Optimized new script](https://github.com/PMJ520/tools_public/tree/master/vpn/openvpn)  
-****
+**The optimized version of Th script mainly solves the routing forwarding problems such as LAN and client being unable to connect to server and using public network, and also enhances the security and the use portability**[Optimized new script](https://github.com/PMJ520/tools_public/tree/master/vpn/openvpn)  
+**  
+
+**Openvpn-install. Sh on this page optimizes the use of portability, solves the routing forwarding problem, and no longer maintains this page. If necessary, please use the new script**[Optimized new script](https://github.com/PMJ520/tools_public/tree/master/vpn/openvpn)  
+**
 
 
 
